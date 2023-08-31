@@ -1,0 +1,25 @@
+{
+    "shadow_width": 1280,
+    "grid_width": 800,
+    "margin_top": -42,
+    "button_width": 140,
+    "button_height": 70,
+    "buttons": [
+        {
+            "label": "Hello World 1",
+            "col": 0,
+            "row": 0,
+            "is_toggle": false,
+            "cmd": "swaynag",
+            "args": ["-m", "test"]
+        },
+        {
+            "label": "Hello World 2",
+            "col": 1,
+            "row": 1,
+            "is_toggle": true,
+            "cmd": "swaynag",
+            "args": ["-m", "test"]
+        }
+    ]
+}
