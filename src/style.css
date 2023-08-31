@@ -12,7 +12,11 @@ window {
 }
 
 container {
-    background: #222;
+    background: #1f2021;
+}
+
+label {
+    color: #eee;
 }
 
 closeButton {

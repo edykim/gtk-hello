@@ -1,25 +1,166 @@
 {
-    "shadow_width": 1280,
-    "grid_width": 800,
-    "margin_top": -42,
-    "button_width": 140,
-    "button_height": 70,
+    "shadow_width": 980,
+    "grid_width": 1100,
+    "margin_top": -62,
+    "label_width": 180,
+    "label_height": 60,
+    "button_width": 180,
+    "button_height": 120,
     "buttons": [
         {
-            "label": "Hello World 1",
+            "label": "PDF Viewer",
             "col": 0,
             "row": 0,
             "is_toggle": false,
-            "cmd": "swaynag",
-            "args": ["-m", "test"]
+            "cmd": "evince",
+            "args": []
         },
         {
-            "label": "Hello World 2",
+            "label": "Files",
+            "col": 1,
+            "row": 0,
+            "is_toggle": false,
+            "cmd": "nautilus",
+            "args": []
+        },
+        {
+            "label": "Chrome",
+            "col": 0,
+            "row": 1,
+            "is_toggle": false,
+            "cmd": "chrome",
+            "args": []
+        },
+
+        {
+            "label": "Firefox",
             "col": 1,
             "row": 1,
+            "is_toggle": false,
+            "cmd": "firefox",
+            "args": []
+        },
+
+        {
+            "label": "Terminal",
+            "col": 2,
+            "row": 1,
+            "is_toggle": false,
+            "cmd": "foot",
+            "args": []
+        },
+        {
+            "label": "Kime",
+            "col": 3,
+            "row": 1,
+            "is_toggle": false,
+            "cmd": "kime",
+            "args": []
+        },
+        {
+            "label": "Xournal++",
+            "col": 2,
+            "row": 0,
+            "is_toggle": false,
+            "cmd": "xournalpp",
+            "args": []
+        },
+
+        {
+            "label": "System",
+            "col": 0,
+            "row": 9,
+            "is_toggle": false,
+            "cmd": "gnome-control-center",
+            "args": []
+        },
+        {
+            "label": "Sound",
+            "col": 1,
+            "row": 9,
+            "is_toggle": false,
+            "cmd": "pavucontrol",
+            "args": []
+        },
+        {
+            "label": "Programs",
+            "col": 0,
+            "row": -1,
+            "is_toggle": false,
+            "cmd": "",
+            "args": [""]
+        },
+        {
+            "label": "System",
+            "col": 0,
+            "row": -5,
+            "is_toggle": false,
+            "cmd": "",
+            "args": [""]
+        },
+        {
+            "label": "Settings",
+            "col": 0,
+            "row": 8,
+            "is_toggle": false,
+            "cmd": "",
+            "args": [""]
+        },
+        {
+            "label": "",
+            "col": 0,
+            "row": 10,
+            "is_toggle": false,
+            "cmd": "",
+            "args": [""]
+        },
+        {
+            "label": "Rotate",
+            "col": 0,
+            "row": -3,
             "is_toggle": true,
-            "cmd": "swaynag",
-            "args": ["-m", "test"]
+            "cmd": "rotate",
+            "args": [""]
+        },
+        {
+            "label": "Poweroff",
+            "col": 0,
+            "row": -4,
+            "is_toggle": false,
+            "cmd": "systemctl",
+            "args": ["poweroff"]
+        },
+        {
+            "label": "Reboot",
+            "col": 1,
+            "row": -4,
+            "is_toggle": false,
+            "cmd": "systemctl",
+            "args": ["reboot"]
+        },
+        {
+            "label": "Logout",
+            "col": 2,
+            "row": -4,
+            "is_toggle": false,
+            "cmd": "swaymsg",
+            "args": ["exit"]
+        },
+        {
+            "label": "Close",
+            "col": 3,
+            "row": -4,
+            "is_toggle": false,
+            "cmd": "swaymsg",
+            "args": ["kill"]
+        },
+        {
+            "label": "Brightness",
+            "col": 2,
+            "row": 9,
+            "is_toggle": true,
+            "cmd": "brightnesstg",
+            "args": []
         }
     ]
 }

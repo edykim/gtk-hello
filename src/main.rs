@@ -1,13 +1,15 @@
 use glib::clone;
 use gtk::gdk::Display;
-use gtk::{glib, Application, ApplicationWindow, Button, Grid, Align};
+use gtk::{glib, Application, ApplicationWindow, Button, Grid, Align, Label};
 use gtk::{prelude::*, Box, CssProvider};
 use std::io::Error;
 use std::io::Result;
 use std::os::unix::process::CommandExt;
+use std::path::PathBuf;
 use std::process::{Command, ExitStatus};
 use std::fs;
 use serde::{Deserialize, Serialize};
+use std::env::home_dir;
 
 #[derive(Serialize, Deserialize)]
 struct ButtonMeta {
@@ -26,6 +28,8 @@ struct Config {
     grid_width: i32,
     button_width: i32,
     button_height: i32,
+    label_width: i32,
+    label_height: i32,
     buttons: Vec<ButtonMeta>
 }
 
@@ -45,8 +49,12 @@ fn read_file_string(filepath: &str) -> Result<String> {
 }
 
 fn load_config() -> Result<Config> {
-    // Some JSON input data as a &str. Maybe this comes from the user.
-    let data: String = read_file_string("config.json").unwrap();
+    let mut path: PathBuf = home_dir().unwrap();
+    path.push(".config");
+    path.push("gtk-hello");
+    path.push("config.json");
+
+    let data: String = read_file_string(path.to_str().unwrap()).unwrap();
     let p: Config = serde_json::from_str(&data)?;
     
     Ok(p)
@@ -84,7 +92,7 @@ fn build_ui(app: &Application) {
 
     // Create a button with label and margins
     let invisible_button = Button::builder()
-        .label("Close")
+        .label(" ")
         .width_request(config.shadow_width)
         .css_name("closeButton")
         .build();
@@ -100,26 +108,44 @@ fn build_ui(app: &Application) {
         .build();
 
     for button_meta in config.buttons {
-        let button = Button::builder()
-            .label(button_meta.label)
-            .width_request(config.button_width)
-            .height_request(config.button_height)            
-            .margin_top(10)
-            .margin_bottom(10)
-            .margin_start(10)
-            .margin_end(10)
-            .build();
+        if button_meta.cmd != "" {
+            let button = Button::builder()
+                .label(button_meta.label)
+                .width_request(config.button_width)
+                .height_request(config.button_height)            
+                .margin_top(10)
+                .margin_bottom(10)
+                .margin_start(10)
+                .margin_end(10)
+                .build();
 
-        grid.attach(&button, button_meta.col, button_meta.row, 1, 1);
-    
-        button.connect_clicked(move |_| {
-            let args: Vec<&str> = button_meta.args.iter().map(|x| x.as_ref()).collect();
-            if button_meta.is_toggle {
-                let _ = execute(&button_meta.cmd, &args);
-            } else {
-                execute_and_done(&button_meta.cmd, &args);
-            }
-        });
+            grid.attach(&button, button_meta.col, button_meta.row, 1, 1);
+        
+            button.connect_clicked(move |_| {
+                let args: Vec<&str> = button_meta.args.iter().map(|x| x.as_ref()).collect();
+                if button_meta.is_toggle {
+                    let _ = execute(&button_meta.cmd, &args);
+                } else {
+                    execute_and_done(&button_meta.cmd, &args);
+                }
+            });
+        } else {
+            let label = Label::builder()
+                .label(button_meta.label)
+                .xalign(0.0)
+                .yalign(1.0)
+                .width_request(config.label_width)
+                .height_request(config.label_height)            
+                .margin_top(10)
+                .margin_bottom(10)
+                .margin_start(10)
+                .margin_end(10)
+                .css_name("label")
+                .build();
+
+            grid.attach(&label, button_meta.col, button_meta.row, 1, 1);
+        
+        }
     
     }
     
