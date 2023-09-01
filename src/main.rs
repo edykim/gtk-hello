@@ -1,19 +1,20 @@
 use glib::clone;
 use gtk::gdk::Display;
-use gtk::{glib, Application, ApplicationWindow, Button, Grid, Align, Label};
+use gtk::{glib, Align, Application, ApplicationWindow, Button, Grid, Label};
 use gtk::{prelude::*, Box, CssProvider};
+use serde::{Deserialize, Serialize};
+use std::env::home_dir;
+use std::fs;
 use std::io::Error;
 use std::io::Result;
 use std::os::unix::process::CommandExt;
 use std::path::PathBuf;
 use std::process::{Command, ExitStatus};
-use std::fs;
-use serde::{Deserialize, Serialize};
-use std::env::home_dir;
 
 #[derive(Serialize, Deserialize)]
 struct ButtonMeta {
     label: String,
+    id: Option<String>,
     col: i32,
     row: i32,
     cmd: String,
@@ -30,7 +31,7 @@ struct Config {
     button_height: i32,
     label_width: i32,
     label_height: i32,
-    buttons: Vec<ButtonMeta>
+    buttons: Vec<ButtonMeta>,
 }
 
 const APP_ID: &str = "org.gtk_rs.HelloWorld2";
@@ -44,8 +45,7 @@ pub fn execute(exe: &str, args: &[&str]) -> Result<ExitStatus> {
 }
 
 fn read_file_string(filepath: &str) -> Result<String> {
-    let data = fs::read_to_string(filepath).unwrap();
-    Ok(data)
+    fs::read_to_string(filepath)
 }
 
 fn load_config() -> Result<Config> {
@@ -56,8 +56,17 @@ fn load_config() -> Result<Config> {
 
     let data: String = read_file_string(path.to_str().unwrap()).unwrap();
     let p: Config = serde_json::from_str(&data)?;
-    
+
     Ok(p)
+}
+
+fn get_config_style() -> Result<String> {
+    let mut path: PathBuf = home_dir().unwrap();
+    path.push(".config");
+    path.push("gtk-hello");
+    path.push("style.css");
+
+    read_file_string(path.to_str().unwrap())
 }
 
 fn main() -> glib::ExitCode {
@@ -83,11 +92,21 @@ fn load_css() {
         &provider,
         gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
     );
+
+    if let Ok(p) = get_config_style() {
+        let custom_provider = CssProvider::new();
+        custom_provider.load_from_data(&p);
+        // Add the provider to the default screen
+        gtk::style_context_add_provider_for_display(
+            &Display::default().expect("Could not connect to a display."),
+            &custom_provider,
+            gtk::STYLE_PROVIDER_PRIORITY_APPLICATION,
+        );
+    }
 }
 
 fn build_ui(app: &Application) {
-
-    let config_result :Result<Config> = load_config();
+    let config_result: Result<Config> = load_config();
     let config: Config = config_result.unwrap();
 
     // Create a button with label and margins
@@ -112,7 +131,7 @@ fn build_ui(app: &Application) {
             let button = Button::builder()
                 .label(button_meta.label)
                 .width_request(config.button_width)
-                .height_request(config.button_height)            
+                .height_request(config.button_height)
                 .margin_top(10)
                 .margin_bottom(10)
                 .margin_start(10)
@@ -120,7 +139,7 @@ fn build_ui(app: &Application) {
                 .build();
 
             grid.attach(&button, button_meta.col, button_meta.row, 1, 1);
-        
+
             button.connect_clicked(move |_| {
                 let args: Vec<&str> = button_meta.args.iter().map(|x| x.as_ref()).collect();
                 if button_meta.is_toggle {
@@ -135,7 +154,7 @@ fn build_ui(app: &Application) {
                 .xalign(0.0)
                 .yalign(1.0)
                 .width_request(config.label_width)
-                .height_request(config.label_height)            
+                .height_request(config.label_height)
                 .margin_top(10)
                 .margin_bottom(10)
                 .margin_start(10)
@@ -144,12 +163,9 @@ fn build_ui(app: &Application) {
                 .build();
 
             grid.attach(&label, button_meta.col, button_meta.row, 1, 1);
-        
         }
-    
     }
-    
-        
+
     let stage = Box::builder()
         .orientation(gtk::Orientation::Horizontal)
         .build();
@@ -158,6 +174,19 @@ fn build_ui(app: &Application) {
         .orientation(gtk::Orientation::Horizontal)
         .css_name("container")
         .build();
+
+    let button = Button::builder()
+        .label("<<")
+        .width_request(config.button_width)
+        .height_request(config.button_height / 2)
+        .margin_top(10)
+        .margin_bottom(10)
+        .margin_start(10)
+        .margin_end(10)
+        .css_name("expander")
+        .build();
+
+    grid.attach(&button, 0, -20, 1, 1);
 
     // container.append(&button);
     // container.append(&button2);
@@ -172,6 +201,18 @@ fn build_ui(app: &Application) {
         .child(&stage)
         .css_name("window")
         .build();
+
+    button.connect_clicked(clone!(@weak invisible_button => move |button| {
+        if invisible_button.width_request() != 100 {
+            invisible_button.set_width_request(100);
+            button.set_label(">>");
+            grid.set_width_request(config.grid_width + config.shadow_width - 100);
+        } else {
+            invisible_button.set_width_request(config.shadow_width);
+            button.set_label("<<");
+            grid.set_width_request(config.grid_width);
+        }
+    }));
 
     // Connect to "clicked" signal of `button`
     invisible_button.connect_clicked(clone!(@weak window => move |_| {
